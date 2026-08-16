@@ -31,7 +31,6 @@ export default function Moonlight({ size = 96 }: { size?: number }) {
       <circle cx="70" cy="70" r="58" fill="url(#moonlightGlow)" />
 
       <g filter="url(#softGlow)">
-        {/* left wings */}
         <g className="wing-left">
           <path
             d="M70 54 C46 22, 8 20, 10 52 C11 72, 36 78, 70 62 Z"
@@ -52,7 +51,6 @@ export default function Moonlight({ size = 96 }: { size?: number }) {
           <circle cx="34" cy="100" r="1.6" fill="#eafcff" opacity="0.85" />
         </g>
 
-        {/* right wings */}
         <g className="wing-right">
           <path
             d="M70 54 C94 22, 132 20, 130 52 C129 72, 104 78, 70 62 Z"
@@ -74,7 +72,6 @@ export default function Moonlight({ size = 96 }: { size?: number }) {
         </g>
       </g>
 
-      {/* body */}
       <ellipse cx="70" cy="70" rx="3.2" ry="20" fill="#1c2d4a" opacity="0.9" />
       <circle cx="70" cy="50" r="4.2" fill="#1c2d4a" opacity="0.9" />
       <path
@@ -94,11 +91,9 @@ export default function Moonlight({ size = 96 }: { size?: number }) {
         opacity="0.9"
       />
 
-      {/* drifting spore dust, matches the reference footage */}
       <circle cx="40" cy="110" r="1.4" fill="#eafcff" className="firefly" opacity="0.7" />
       <circle cx="100" cy="112" r="1.1" fill="#eafcff" className="firefly" opacity="0.6" style={{ animationDelay: "0.8s" }} />
       <circle cx="70" cy="118" r="1" fill="#eafcff" className="firefly" opacity="0.5" style={{ animationDelay: "1.4s" }} />
     </svg>
   );
 }
-

@@ -64,7 +64,6 @@ h1, h2, h3, h4, .font-display {
   color: #efe7f7;
 }
 
-/* subtle scrollbar to match the palette */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -75,4 +74,3 @@ h1, h2, h3, h4, .font-display {
   background: #382a63;
   border-radius: 6px;
 }
-

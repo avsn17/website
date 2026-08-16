@@ -1,165 +1,120 @@
 "use client";
 
-import { useState } from "react";
-import { ADMIN_EMAILS, type ShopItem } from "@/lib/store";
+import React from 'react';
 
-export default function AdminView({
-  customItems,
-  onAdd,
-  onRemove,
-}: {
-  customItems: ShopItem[];
-  onAdd: (item: Omit<ShopItem, "id">) => void;
-  onRemove: (id: string) => void;
-}) {
-  const [email, setEmail] = useState("");
-  const [unlocked, setUnlocked] = useState(false);
-  const [error, setError] = useState("");
+interface AdminConfig {
+  mascotMessage: string;
+  glowIntensity: 'low' | 'medium' | 'high';
+  themePreset: 'twilight' | 'midnight' | 'emerald';
+  showGnome: boolean;
+  showSparkles: boolean;
+}
 
-  const [name, setName] = useState("");
-  const [cost, setCost] = useState(50);
-  const [kind, setKind] = useState<ShopItem["kind"]>("plant");
-  const [description, setDescription] = useState("");
+interface AdminViewProps {
+  config: AdminConfig;
+  onChange: (newConfig: AdminConfig) => void;
+  onClose: () => void;
+}
 
-  function handleUnlock(e: React.FormEvent) {
-    e.preventDefault();
-    if (ADMIN_EMAILS.includes(email.trim().toLowerCase())) {
-      setUnlocked(true);
-      setError("");
-    } else {
-      setError("That email doesn't have admin access.");
-    }
-  }
-
-  function handleAdd(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || !description.trim() || cost <= 0) return;
-    onAdd({ name: name.trim(), cost, kind, description: description.trim() });
-    setName("");
-    setCost(50);
-    setDescription("");
-  }
-
-  if (!unlocked) {
-    return (
-      <div className="px-6 py-8">
-        <h2 className="font-display text-2xl text-parchment">Admin</h2>
-        <p className="mt-1 max-w-md text-sm text-muted">
-          Feature and shop-item management is restricted. Enter the admin
-          account email to continue.
-        </p>
-        <form
-          onSubmit={handleUnlock}
-          className="glass-panel mt-6 flex max-w-sm flex-col gap-3 rounded-2xl p-5"
-        >
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment placeholder:text-muted"
-          />
-          {error && <p className="text-xs text-petal">{error}</p>}
-          <button
-            type="submit"
-            className="self-start rounded-full bg-moonglow px-5 py-2 text-sm font-semibold text-midnight hover:brightness-110"
-          >
-            Unlock admin
-          </button>
-        </form>
-        <p className="mt-4 max-w-md text-xs text-muted">
-          Note: this is a client-side convenience lock for the current
-          front-end-only build — anyone can read the allowed address in the
-          shipped code. Before launch, replace this with the backend{" "}
-          <code>role</code> check described in the master overview (§3),
-          enforced on the server for every admin route.
-        </p>
-      </div>
-    );
-  }
-
+export const AdminView: React.FC<AdminViewProps> = ({ config, onChange, onClose }) => {
   return (
-    <div className="px-6 py-8">
-      <h2 className="font-display text-2xl text-parchment">Admin</h2>
-      <p className="mt-1 text-sm text-muted">
-        Signed in as an admin account. Add or remove shop items below.
-      </p>
-
-      <form
-        onSubmit={handleAdd}
-        className="glass-panel mt-6 grid max-w-lg gap-3 rounded-2xl p-5"
-      >
-        <h3 className="font-display text-lg text-parchment">Add a shop item</h3>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Item name"
-          className="w-full rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment placeholder:text-muted"
-        />
-        <div className="flex gap-3">
-          <input
-            type="number"
-            min={1}
-            value={cost}
-            onChange={(e) => setCost(Number(e.target.value))}
-            className="w-28 rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment"
-          />
-          <select
-            value={kind}
-            onChange={(e) => setKind(e.target.value as ShopItem["kind"])}
-            className="flex-1 rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment"
-          >
-            <option value="plant">plant</option>
-            <option value="companion">companion</option>
-            <option value="backdrop">backdrop</option>
-          </select>
+    <div className="w-full max-w-lg bg-emerald-950/90 border border-emerald-500/40 backdrop-blur-xl rounded-2xl p-6 shadow-2xl text-emerald-100 space-y-6 animate-fadeIn">
+      {/* Admin Header */}
+      <div className="flex items-center justify-between border-b border-emerald-800/80 pb-4">
+        <div>
+          <h2 className="text-lg font-serif font-bold text-glow-cyan tracking-wide">
+            ⚙️ Admin Control Panel
+          </h2>
+          <p className="text-xs text-emerald-300/70">Customize garden appearance and mascot parameters</p>
         </div>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          placeholder="Short description shown in the shop"
-          className="w-full rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment placeholder:text-muted"
-        />
         <button
-          type="submit"
-          className="self-start rounded-full bg-moonglow px-5 py-2 text-sm font-semibold text-midnight hover:brightness-110"
+          onClick={onClose}
+          className="text-xs bg-emerald-800/60 hover:bg-emerald-700 text-emerald-200 px-3 py-1.5 rounded-lg border border-emerald-600/40 transition-colors"
         >
-          Add to shop
+          Close
         </button>
-      </form>
+      </div>
 
-      <div className="mt-6 max-w-lg">
-        <h3 className="font-display text-lg text-parchment">
-          Admin-added items
-        </h3>
-        {customItems.length === 0 ? (
-          <p className="mt-2 text-sm text-muted">None yet.</p>
-        ) : (
-          <div className="mt-2 divide-y divide-indigo-deep/40 rounded-2xl border border-indigo-deep/60">
-            {customItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-3 text-sm"
-              >
-                <div>
-                  <p className="text-parchment">{item.name}</p>
-                  <p className="text-xs text-muted">
-                    {item.kind} · ✦ {item.cost}
-                  </p>
-                </div>
-                <button
-                  onClick={() => onRemove(item.id)}
-                  className="rounded-full bg-plum px-3 py-1 text-xs text-petal ring-1 ring-indigo-deep hover:ring-petal"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Mascot Message Customizer */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
+          Moonlight's Speech Message
+        </label>
+        <textarea
+          value={config.mascotMessage}
+          onChange={(e) => onChange({ ...config, mascotMessage: e.target.value })}
+          rows={3}
+          className="w-full bg-emerald-900/60 border border-emerald-700/60 rounded-xl p-3 text-xs text-emerald-100 placeholder-emerald-500 focus:outline-none focus:border-glow-cyan transition-colors resize-none"
+          placeholder="Enter custom mascot message..."
+        />
+      </div>
+
+      {/* Theme Presets */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
+          Garden Theme Preset
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          {(['twilight', 'emerald', 'midnight'] as const).map((preset) => (
+            <button
+              key={preset}
+              onClick={() => onChange({ ...config, themePreset: preset })}
+              className={`py-2 px-3 text-xs rounded-xl border capitalize font-medium transition-all ${
+                config.themePreset === preset
+                  ? 'bg-glow-cyan/20 border-glow-cyan text-glow-cyan shadow-sm'
+                  : 'bg-emerald-900/40 border-emerald-800 text-emerald-300 hover:border-emerald-700'
+              }`}
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Glow Intensity Selector */}
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-emerald-300">
+          Butterfly Glow Intensity
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          {(['low', 'medium', 'high'] as const).map((level) => (
+            <button
+              key={level}
+              onClick={() => onChange({ ...config, glowIntensity: level })}
+              className={`py-2 px-3 text-xs rounded-xl border capitalize font-medium transition-all ${
+                config.glowIntensity === level
+                  ? 'bg-glow-cyan/20 border-glow-cyan text-glow-cyan'
+                  : 'bg-emerald-900/40 border-emerald-800 text-emerald-300 hover:border-emerald-700'
+              }`}
+            >
+              {level}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Toggles */}
+      <div className="space-y-3 pt-2 border-t border-emerald-800/80">
+        <label className="flex items-center justify-between cursor-pointer">
+          <span className="text-xs font-medium text-emerald-200">Display Gnome Keeper</span>
+          <input
+            type="checkbox"
+            checked={config.showGnome}
+            onChange={(e) => onChange({ ...config, showGnome: e.target.checked })}
+            className="w-4 h-4 accent-cyan-400 rounded cursor-pointer"
+          />
+        </label>
+
+        <label className="flex items-center justify-between cursor-pointer">
+          <span className="text-xs font-medium text-emerald-200">Ambient Firefly Particles</span>
+          <input
+            type="checkbox"
+            checked={config.showSparkles}
+            onChange={(e) => onChange({ ...config, showSparkles: e.target.checked })}
+            className="w-4 h-4 accent-cyan-400 rounded cursor-pointer"
+          />
+        </label>
       </div>
     </div>
   );
-}
-
+};

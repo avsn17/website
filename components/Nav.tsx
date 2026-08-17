@@ -1,26 +1,34 @@
 "use client";
 
+import Link from "next/link";
+import { signOut } from "next-auth/react";
 import Moonlight from "./Moonlight";
 
-export type Tab = "garden" | "shop" | "history" | "feedback" | "admin";
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: "garden", label: "The Garden" },
-  { id: "shop", label: "The Shop" },
-  { id: "history", label: "History" },
-  { id: "feedback", label: "Feedback" },
-  { id: "admin", label: "Admin" },
-];
+export type Tab = "garden" | "shop" | "history" | "friends" | "groups" | "feedback" | "admin";
 
 export default function Nav({
   active,
   onChange,
   coins,
+  userEmail,
+  isAdmin,
 }: {
   active: Tab;
   onChange: (t: Tab) => void;
   coins: number;
+  userEmail: string | null;
+  isAdmin: boolean;
 }) {
+  const tabs: { id: Tab; label: string }[] = [
+    { id: "garden", label: "The Garden" },
+    { id: "shop", label: "The Shop" },
+    { id: "history", label: "History" },
+    { id: "friends", label: "Friends" },
+    { id: "groups", label: "Groups" },
+    { id: "feedback", label: "Feedback" },
+    ...(isAdmin ? [{ id: "admin" as Tab, label: "Admin" }] : []),
+  ];
+
   return (
     <header className="glass-panel sticky top-0 z-10 flex flex-col gap-4 border-x-0 border-t-0 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
@@ -34,7 +42,7 @@ export default function Nav({
       </div>
 
       <nav className="flex flex-wrap items-center gap-2">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
@@ -47,9 +55,24 @@ export default function Nav({
             {tab.label}
           </button>
         ))}
+        <Link
+          href="/leaderboard"
+          className="rounded-full bg-plum/60 px-4 py-1.5 text-sm text-muted transition hover:text-parchment"
+        >
+          Leaderboard
+        </Link>
         <span className="ml-2 flex items-center gap-1 rounded-full bg-plum/60 px-3 py-1.5 text-sm text-firefly shadow-fireflyGlow">
           ✦ {coins}
         </span>
+        {userEmail && (
+          <button
+            onClick={() => signOut({ callbackUrl: "/signin" })}
+            className="rounded-full bg-plum/60 px-3 py-1.5 text-xs text-muted hover:text-parchment"
+            title={userEmail}
+          >
+            Sign out
+          </button>
+        )}
       </nav>
     </header>
   );

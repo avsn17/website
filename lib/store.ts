@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export type FocusSession = {
   id: string;
-  startedAt: string; // ISO
+  startedAt: string;
   targetMinutes: number;
-  actualMinutes: number; // proportional — never punished for stopping early
+  actualMinutes: number;
   tag: string;
   coinsEarned: number;
 };
@@ -15,166 +16,118 @@ export type ShopItem = {
   id: string;
   name: string;
   cost: number;
-  kind: "plant" | "backdrop" | "companion";
+  kind: "plant" | "backdrop" | "companion" | string;
   description: string;
+  custom: boolean;
 };
 
 export type GardenState = {
   sessions: FocusSession[];
   coins: number;
   ownedItems: string[];
-  customItems: ShopItem[]; // admin-added items (client-side only, see AdminView)
 };
 
-const STORAGE_KEY = "mystical-gardens:v1";
+const EMPTY_STATE: GardenState = { sessions: [], coins: 0, ownedItems: [] };
 
-// Client-side-only admin allowlist. This is a convenience gate, NOT real
-// security — anyone reading the bundle can see this address. Before launch,
-// replace with the backend `role` check on the user model described in the
-// master overview (§3): enforce on the server, on every admin route.
-export const ADMIN_EMAILS = ["avasingueneser1@gmail.com"];
-
-const DEFAULT_STATE: GardenState = {
-  sessions: [],
-  coins: 0,
-  ownedItems: [],
-  customItems: [],
-};
-
-export const SHOP_ITEMS: ShopItem[] = [
-  {
-    id: "glow-mushroom",
-    name: "Glow Mushroom Patch",
-    cost: 40,
-    kind: "plant",
-    description: "A cluster of soft-lit mushrooms that line your garden path.",
-  },
-  {
-    id: "firefly-swarm",
-    name: "Firefly Swarm",
-    cost: 60,
-    kind: "companion",
-    description: "A handful of fireflies that drift near Moonlight at dusk.",
-  },
-  {
-    id: "moonvine",
-    name: "Moonvine Trellis",
-    cost: 90,
-    kind: "plant",
-    description: "Pale, night-blooming vines that climb as you keep focusing.",
-  },
-  {
-    id: "lantern-path",
-    name: "Lantern-lit Path",
-    cost: 120,
-    kind: "backdrop",
-    description: "Warm lantern light along the garden's edge.",
-  },
-];
-
-// 1 coin per completed focus minute — proportional, no loss mechanic.
-// This mirrors the "flexible" core-mechanic decision: stopping early still
-// banks whatever was earned so far.
-const COINS_PER_MINUTE = 1;
-
-function loadState(): GardenState {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STATE;
-    const parsed = JSON.parse(raw);
-    return { ...DEFAULT_STATE, ...parsed };
-  } catch {
-    return DEFAULT_STATE;
-  }
-}
-
-function saveState(state: GardenState) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
+// Remote, per-account version of the garden store — replaces the earlier
+// localStorage-only implementation now that real accounts exist. All
+// reads/writes go through API routes backed by Postgres via Prisma;
+// coin balances and purchases are validated server-side.
 export function useGardenStore() {
-  const [state, setState] = useState<GardenState>(DEFAULT_STATE);
+  const { data: authSession, status } = useSession();
+  const [state, setState] = useState<GardenState>(EMPTY_STATE);
+  const [allShopItems, setAllShopItems] = useState<ShopItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => {
-    setState(loadState());
+  const refresh = useCallback(async () => {
+    if (status !== "authenticated") return;
+    const [sessionsRes, itemsRes] = await Promise.all([
+      fetch("/api/sessions"),
+      fetch("/api/shop-items"),
+    ]);
+    if (sessionsRes.ok) {
+      const data = await sessionsRes.json();
+      setState({
+        sessions: data.sessions,
+        coins: data.coins,
+        ownedItems: data.ownedItemIds,
+      });
+    }
+    if (itemsRes.ok) {
+      const data = await itemsRes.json();
+      setAllShopItems(data.items);
+    }
     setHydrated(true);
-  }, []);
+  }, [status]);
 
   useEffect(() => {
-    if (hydrated) saveState(state);
-  }, [state, hydrated]);
+    if (status === "authenticated") {
+      refresh();
+    } else if (status === "unauthenticated") {
+      setState(EMPTY_STATE);
+      setHydrated(true);
+    }
+  }, [status, refresh]);
 
   const totalFocusedMinutes = state.sessions.reduce(
     (sum, s) => sum + s.actualMinutes,
     0
   );
 
-  const allShopItems = [...SHOP_ITEMS, ...state.customItems];
-
   const logSession = useCallback(
-    (targetMinutes: number, actualMinutes: number, tag: string) => {
-      const roundedMinutes = Math.max(0, Math.round(actualMinutes * 10) / 10);
-      const coinsEarned = Math.round(roundedMinutes * COINS_PER_MINUTE);
-      const session: FocusSession = {
-        id: crypto.randomUUID(),
-        startedAt: new Date().toISOString(),
-        targetMinutes,
-        actualMinutes: roundedMinutes,
-        tag,
-        coinsEarned,
-      };
-      setState((prev) => ({
-        ...prev,
-        sessions: [session, ...prev.sessions],
-        coins: prev.coins + coinsEarned,
-      }));
-      return session;
+    async (targetMinutes: number, actualMinutes: number, tag: string) => {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetMinutes, actualMinutes, tag }),
+      });
+      if (res.ok) await refresh();
     },
-    []
+    [refresh]
   );
 
-  const purchaseItem = useCallback((itemId: string) => {
-    setState((prev) => {
-      const item = [...SHOP_ITEMS, ...prev.customItems].find(
-        (i) => i.id === itemId
-      );
-      if (!item) return prev;
-      if (prev.ownedItems.includes(itemId)) return prev;
-      if (prev.coins < item.cost) return prev;
-      return {
-        ...prev,
-        coins: prev.coins - item.cost,
-        ownedItems: [...prev.ownedItems, itemId],
-      };
-    });
-  }, []);
+  const purchaseItem = useCallback(
+    async (itemId: string) => {
+      const res = await fetch("/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId }),
+      });
+      if (res.ok) await refresh();
+      return res.ok;
+    },
+    [refresh]
+  );
 
-  const addShopItem = useCallback((item: Omit<ShopItem, "id">) => {
-    setState((prev) => ({
-      ...prev,
-      customItems: [
-        ...prev.customItems,
-        { ...item, id: `custom-${crypto.randomUUID()}` },
-      ],
-    }));
-  }, []);
+  const addShopItem = useCallback(
+    async (item: { name: string; cost: number; kind: string; description: string }) => {
+      const res = await fetch("/api/admin/shop-items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
+      if (res.ok) await refresh();
+      return res.ok;
+    },
+    [refresh]
+  );
 
-  const removeShopItem = useCallback((itemId: string) => {
-    setState((prev) => ({
-      ...prev,
-      customItems: prev.customItems.filter((i) => i.id !== itemId),
-    }));
-  }, []);
-
-  const resetGarden = useCallback(() => {
-    setState(DEFAULT_STATE);
-  }, []);
+  const removeShopItem = useCallback(
+    async (itemId: string) => {
+      const res = await fetch(`/api/admin/shop-items/${itemId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) await refresh();
+      return res.ok;
+    },
+    [refresh]
+  );
 
   return {
     hydrated,
+    isAuthenticated: status === "authenticated",
+    userEmail: authSession?.user?.email ?? null,
+    isAdmin: (authSession?.user as any)?.role === "admin",
     state,
     totalFocusedMinutes,
     allShopItems,
@@ -182,7 +135,6 @@ export function useGardenStore() {
     purchaseItem,
     addShopItem,
     removeShopItem,
-    resetGarden,
+    refresh,
   };
 }
-

@@ -14,7 +14,7 @@ export default function GardenView({
 }: {
   state: GardenState;
   totalFocusedMinutes: number;
-  onLogSession: (target: number, actual: number, tag: string) => void;
+  onLogSession: (target: number, actual: number, tag: string) => void | Promise<void>;
 }) {
   const [targetMinutes, setTargetMinutes] = useState(25);
   const [tag, setTag] = useState(TAGS[0]);
@@ -133,4 +133,3 @@ export default function GardenView({
     </div>
   );
 }
-

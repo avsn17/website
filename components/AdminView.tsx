@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ShopItem } from "@/lib/store";
 
-export default function AdminView({
+export function AdminView({
   isAdmin,
   customItems,
   onAdd,

@@ -122,3 +122,5 @@ export function AdminView({
     </div>
   );
 }
+
+export default AdminView;

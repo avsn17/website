@@ -10,7 +10,7 @@ export const LEAGUES = [
 ] as const;
 
 export function getLeague(totalMinutes: number) {
-  let current = LEAGUES[0];
+  let current: (typeof LEAGUES)[number] = LEAGUES[0];
   for (const league of LEAGUES) {
     if (totalMinutes >= league.minMinutes) current = league;
   }

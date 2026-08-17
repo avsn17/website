@@ -1,2 +1,15 @@
 .vercel
 .env*
+node_modules
+
+# Build outputs & cache
+.next/
+out/
+build/
+
+# Environment files
+.env
+.env*.local
+
+# Dependencies
+node_modules/

@@ -11,124 +11,114 @@ export default function AdminView({
 }: {
   isAdmin: boolean;
   customItems: ShopItem[];
-  onAdd: (item: { name: string; cost: number; kind: string; description: string }) => Promise<boolean>;
-  onRemove: (id: string) => Promise<boolean>;
+  onAdd: (item: ShopItem) => void;
+  onRemove: (id: string) => void;
 }) {
   const [name, setName] = useState("");
-  const [cost, setCost] = useState(50);
-  const [kind, setKind] = useState<"plant" | "companion" | "backdrop">("plant");
+  const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
+  const [category, setCategory] = useState("decor");
 
-  // Reachable client-side by anyone, but every request this view makes is
-  // re-checked server-side (middleware.ts on /api/admin/*), so a non-admin
-  // poking around here still can't actually add or remove items.
-  if (!isAdmin) {
-    return (
-      <div className="px-6 py-8">
-        <h2 className="font-display text-2xl text-parchment">Admin</h2>
-        <p className="mt-2 max-w-md text-sm text-muted">
-          This account doesn&apos;t have admin access. If you believe it
-          should, sign in with the admin account.
-        </p>
-      </div>
-    );
-  }
+  if (!isAdmin) return null;
 
-  async function handleAdd(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    if (!name.trim() || !description.trim() || cost <= 0) return;
-    const ok = await onAdd({ name: name.trim(), cost, kind, description: description.trim() });
-    if (!ok) {
-      setError("Couldn't add that item.");
-      return;
-    }
+    if (!name || !price) return;
+
+    const newItem: ShopItem = {
+      id: `custom-${Date.now()}`,
+      name,
+      price: parseFloat(price) || 0,
+      description,
+      category,
+    };
+
+    onAdd(newItem);
     setName("");
-    setCost(50);
+    setPrice("");
     setDescription("");
-  }
+  };
 
   return (
-    <div className="px-6 py-8">
-      <h2 className="font-display text-2xl text-parchment">Admin</h2>
-      <p className="mt-1 text-sm text-muted">
-        Add or remove shop items. This is enforced server-side — the role
-        check lives on the account, not in this page.
-      </p>
-
-      <form
-        onSubmit={handleAdd}
-        className="glass-panel mt-6 grid max-w-lg gap-3 rounded-2xl p-5"
-      >
-        <h3 className="font-display text-lg text-parchment">Add a shop item</h3>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Item name"
-          className="w-full rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment placeholder:text-muted"
-        />
-        <div className="flex gap-3">
+    <div className="p-4 border rounded-lg bg-card text-card-foreground shadow-sm my-4">
+      <h3 className="text-lg font-bold mb-3">Admin Panel - Add Custom Item</h3>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div>
+          <label className="block text-sm font-medium mb-1">Item Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-2 border rounded text-black"
+            placeholder="e.g. Glowing Lotus"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Price ($)</label>
           <input
             type="number"
-            min={1}
-            value={cost}
-            onChange={(e) => setCost(Number(e.target.value))}
-            className="w-28 rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment"
+            step="0.01"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full p-2 border rounded text-black"
+            placeholder="29.99"
+            required
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Category</label>
           <select
-            value={kind}
-            onChange={(e) => setKind(e.target.value as typeof kind)}
-            className="flex-1 rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full p-2 border rounded text-black"
           >
-            <option value="plant">plant</option>
-            <option value="companion">companion</option>
-            <option value="backdrop">backdrop</option>
+            <option value="decor">Decor</option>
+            <option value="plants">Plants</option>
+            <option value="tools">Tools</option>
           </select>
         </div>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          placeholder="Short description shown in the shop"
-          className="w-full rounded-lg border border-indigo-deep bg-midnight px-3 py-2 text-sm text-parchment placeholder:text-muted"
-        />
-        {error && <p className="text-xs text-petal">{error}</p>}
+        <div>
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 border rounded text-black"
+            placeholder="Item description..."
+            rows={2}
+          />
+        </div>
         <button
           type="submit"
-          className="self-start rounded-full bg-moonglow px-5 py-2 text-sm font-semibold text-midnight hover:brightness-110"
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
         >
-          Add to shop
+          Add Item
         </button>
       </form>
 
-      <div className="mt-6 max-w-lg">
-        <h3 className="font-display text-lg text-parchment">
-          Admin-added items
-        </h3>
-        {customItems.length === 0 ? (
-          <p className="mt-2 text-sm text-muted">None yet.</p>
-        ) : (
-          <div className="mt-2 divide-y divide-indigo-deep/40 rounded-2xl border border-indigo-deep/60">
+      {customItems.length > 0 && (
+        <div className="mt-6">
+          <h4 className="font-semibold mb-2">Custom Items</h4>
+          <ul className="space-y-2">
             {customItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 text-sm">
-                <div>
-                  <p className="text-parchment">{item.name}</p>
-                  <p className="text-xs text-muted">
-                    {item.kind} · ✦ {item.cost}
-                  </p>
-                </div>
+              <li
+                key={item.id}
+                className="flex justify-between items-center p-2 bg-muted/50 rounded"
+              >
+                <span>
+                  {item.name} - ${item.price} ({item.category})
+                </span>
                 <button
                   onClick={() => onRemove(item.id)}
-                  className="rounded-full bg-plum px-3 py-1 text-xs text-petal ring-1 ring-indigo-deep hover:ring-petal"
+                  className="text-red-500 hover:text-red-700 text-sm"
                 >
                   Remove
                 </button>
-              </div>
+              </li>
             ))}
-          </div>
-        )}
-      </div>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

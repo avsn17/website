@@ -6,14 +6,18 @@ export default function FeedbackView() {
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!message.trim()) return;
-    // NOTE: no backend is wired up yet — this only confirms locally.
-    // Point this at a real endpoint (e.g. an API route backed by email
-    // or a database) before shipping.
-    setSent(true);
-    setMessage("");
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+    if (res.ok) {
+      setSent(true);
+      setMessage("");
+    }
   }
 
   return (
@@ -42,8 +46,7 @@ export default function FeedbackView() {
         </button>
         {sent && (
           <p className="text-xs text-firefly">
-            Thanks — noted. (This demo doesn't send anywhere yet; connect it
-            to a real endpoint before launch.)
+            Thanks — your feedback was received.
           </p>
         )}
       </form>

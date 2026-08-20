@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { ShopItem } from "@/lib/store";
+
+type ShopItem = {
+  id: string;
+  name: string;
+  cost: number;
+  description: string;
+  kind: string;
+};
 
 export function AdminView({
   isAdmin,
@@ -15,27 +22,27 @@ export function AdminView({
   onRemove: (id: string) => void;
 }) {
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
+  const [cost, setCost] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("decor");
+  const [kind, setKind] = useState("plant");
 
   if (!isAdmin) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !price) return;
+    if (!name || !cost) return;
 
     const newItem: ShopItem = {
       id: `custom-${Date.now()}`,
       name,
-      price: parseFloat(price) || 0,
+      cost: parseInt(cost, 10) || 0,
       description,
-      category,
+      kind,
     };
 
     onAdd(newItem);
     setName("");
-    setPrice("");
+    setCost("");
     setDescription("");
   };
 
@@ -55,27 +62,27 @@ export function AdminView({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Price ($)</label>
+          <label className="block text-sm font-medium mb-1">Cost (coins)</label>
           <input
             type="number"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            min="1"
+            value={cost}
+            onChange={(e) => setCost(e.target.value)}
             className="w-full p-2 border rounded text-black"
-            placeholder="29.99"
+            placeholder="40"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Category</label>
+          <label className="block text-sm font-medium mb-1">Kind</label>
           <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={kind}
+            onChange={(e) => setKind(e.target.value)}
             className="w-full p-2 border rounded text-black"
           >
-            <option value="decor">Decor</option>
-            <option value="plants">Plants</option>
-            <option value="tools">Tools</option>
+            <option value="plant">Plant</option>
+            <option value="companion">Companion</option>
+            <option value="backdrop">Backdrop</option>
           </select>
         </div>
         <div>
@@ -106,7 +113,7 @@ export function AdminView({
                 className="flex justify-between items-center p-2 bg-muted/50 rounded"
               >
                 <span>
-                  {item.name} - ${item.price} ({item.category})
+                  {item.name} - {item.cost} coins ({item.kind})
                 </span>
                 <button
                   onClick={() => onRemove(item.id)}

@@ -1,5 +1,5 @@
-const { data: todos } = await neon
-  .from('todos')
-  .select('*')
-  .order('id', { ascending: false });
-
+// Removed accidental snippet
+// This file previously contained a stray top-level await using an undefined `neon` variable
+// which could break builds, linters, and editors. The snippet has been intentionally removed.
+// If you need to restore the original logic, recreate it in a properly named module
+// (for example: prisma/neon.ts) with correct imports and no top-level await in library files.

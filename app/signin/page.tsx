@@ -70,6 +70,11 @@ export default function SignInPage() {
             Create one
           </Link>
         </p>
+        <p className="mt-2 text-center text-xs text-muted">
+          <Link href="/reset-password" className="text-moonglow hover:underline">
+            Forgot your password?
+          </Link>
+        </p>
       </div>
     </main>
   );

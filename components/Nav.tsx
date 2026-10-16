@@ -46,11 +46,12 @@ export default function Nav({
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`rounded-full px-4 py-1.5 text-sm transition ${
+            aria-current={active === tab.id ? "page" : undefined}
+            className={`rounded-full px-4 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moonglow ${
               active === tab.id
                 ? "bg-indigo-glow text-parchment shadow-glow"
                 : "bg-plum/60 text-muted hover:text-parchment"
-            }`}
+            }}`}
           >
             {tab.label}
           </button>

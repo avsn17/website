@@ -13,7 +13,7 @@ async function main() {
     process.exit(1);
   }
 
-  const neon = createClient({ dataApi: { url: dataApiUrl } } as Parameters<typeof createClient>[0]);
+  const neon = createClient({ dataApi: { url: dataApiUrl } } as unknown as Parameters<typeof createClient>[0]);
 
   try {
     const res = await neon.from('todos').select('*').order('id', { ascending: false }).limit(100);

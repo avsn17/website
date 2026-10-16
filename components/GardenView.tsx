@@ -59,7 +59,12 @@ export default function GardenView({
   const ss = String(elapsedSeconds % 60).padStart(2, "0");
 
   return (
-    <div className="flex flex-col gap-8 px-6 py-8">
+    <div className="flex flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-firefly">Your quiet corner</p>
+        <h2 className="font-display text-4xl font-semibold text-parchment sm:text-5xl">Grow something beautiful.</h2>
+        <p className="mx-auto max-w-xl text-sm leading-6 text-muted">Each focused minute becomes part of your garden. Choose a small intention and let Moonlight keep watch.</p>
+      </div>
       <div className="flex flex-col items-center gap-4">
         <GardenPlot
           totalMinutes={totalFocusedMinutes}

@@ -6,6 +6,7 @@ import type { GardenState } from "@/lib/store";
 
 const TAGS = ["Study", "Deep work", "Reading", "Chores", "Creative"];
 const PRESETS = [15, 25, 45, 60];
+const VIDEO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Firefly_Veo_Firefly%20video%202025-12-05%2010-39%20275787%20nNU-HvjQuJ5PQzKFgwpfWkAs135iEdeQsg.mp4";
 
 export default function GardenView({
   state,
@@ -60,10 +61,36 @@ export default function GardenView({
 
   return (
     <div className="flex flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-firefly">Your quiet corner</p>
-        <h2 className="font-display text-4xl font-semibold text-parchment sm:text-5xl">Grow something beautiful.</h2>
-        <p className="mx-auto max-w-xl text-sm leading-6 text-muted">Each focused minute becomes part of your garden. Choose a small intention and let Moonlight keep watch.</p>
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 text-center">
+        <div className="mx-auto flex items-center gap-2 rounded-full border border-firefly/20 bg-firefly/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-firefly">
+          <span className="h-1.5 w-1.5 rounded-full bg-firefly shadow-fireflyGlow" /> Chapter one · The first light
+        </div>
+        <h2 className="font-display text-4xl font-semibold leading-tight text-parchment sm:text-5xl">A little light can change the whole night.</h2>
+        <p className="mx-auto max-w-xl text-sm leading-6 text-muted">Your focus is the spark. Every calm minute helps the Firefly find its way home.</p>
+      </div>
+      <div className="mx-auto grid w-full max-w-4xl gap-6 lg:grid-cols-[1.08fr_.92fr] lg:items-center">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/20 shadow-2xl">
+          <video className="aspect-video w-full object-cover" controls preload="metadata" playsInline aria-label="The Firefly story begins">
+            <source src={VIDEO_URL} type="video/mp4" />
+            Your browser does not support the video element.
+          </video>
+          <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3 text-xs text-muted">
+            <span>Watch the spark arrive</span>
+            <span className="text-firefly">A private moment</span>
+          </div>
+        </div>
+        <div className="glass-panel rounded-3xl p-5 sm:p-6">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-moonglow">Tonight&apos;s quest</p>
+          <div className="space-y-4">
+            {["Choose one small intention", "Stay with it while the firefly glows", "Return with a little more light"].map((step, index) => (
+              <div key={step} className="flex items-start gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-firefly/30 bg-firefly/10 text-xs font-semibold text-firefly">0{index + 1}</span>
+                <p className="pt-1 text-sm text-parchment">{step}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-5 text-muted">No profiles, public scores, or tracking are needed to grow here. Your garden stays yours.</p>
+        </div>
       </div>
       <div className="flex flex-col items-center gap-4">
         <GardenPlot

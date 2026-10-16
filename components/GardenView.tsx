@@ -21,6 +21,7 @@ export default function GardenView({
   const [tag, setTag] = useState(TAGS[0]);
   const [running, setRunning] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [videoUnavailable, setVideoUnavailable] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -70,12 +71,34 @@ export default function GardenView({
       </div>
       <div className="mx-auto grid w-full max-w-4xl gap-6 lg:grid-cols-[1.08fr_.92fr] lg:items-center">
         <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/20 shadow-2xl">
-          <video className="aspect-video w-full object-cover" controls preload="metadata" playsInline aria-label="The Firefly story begins">
-            <source src={VIDEO_URL} type="video/mp4" />
-            Your browser does not support the video element.
-          </video>
+          {videoUnavailable ? (
+            <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-indigo-deep/40 px-6 text-center">
+              <p className="font-display text-xl text-parchment">The spark is resting.</p>
+              <p className="max-w-xs text-xs leading-5 text-muted">The story video could not load in this browser. Your focus garden still works without sharing any data.</p>
+              <a
+                href={VIDEO_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-firefly/40 px-4 py-2 text-xs font-semibold text-firefly transition hover:bg-firefly/10"
+              >
+                Open story video
+              </a>
+            </div>
+          ) : (
+            <video
+              className="aspect-video w-full object-cover"
+              controls
+              preload="none"
+              playsInline
+              aria-label="The Firefly story begins"
+              onError={() => setVideoUnavailable(true)}
+            >
+              <source src={VIDEO_URL} type="video/mp4" />
+              Your browser does not support the video element.
+            </video>
+          )}
           <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3 text-xs text-muted">
-            <span>Watch the spark arrive</span>
+            <span>{videoUnavailable ? "Story link available" : "Watch the spark arrive"}</span>
             <span className="text-firefly">A private moment</span>
           </div>
         </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import GardenPlot from "./GardenPlot";
+import Gnome from "./Gnome";
+import Moonlight from "./Moonlight";
 import type { GardenState } from "@/lib/store";
 
 const TAGS = ["Study", "Deep work", "Reading", "Chores", "Creative"];
@@ -74,6 +76,11 @@ export default function GardenView({
         </div>
       </div>
       <div className="mx-auto grid w-full max-w-4xl gap-6 lg:grid-cols-[1.08fr_.92fr] lg:items-center">
+        <div className="order-first flex items-center justify-center gap-3 rounded-3xl border border-firefly/15 bg-plum/40 px-4 py-2 lg:col-span-2 lg:justify-start">
+          <Gnome size={68} />
+          <div className="text-left"><p className="font-display text-lg text-parchment">Welcome, keeper.</p><p className="text-xs text-muted">I&apos;ve unlocked the path. Moonlight will guide your first bloom.</p></div>
+          <div className="ml-auto hidden sm:block"><Moonlight size={58} /></div>
+        </div>
         <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/20 shadow-2xl">
           {videoUnavailable ? (
             <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-indigo-deep/40 px-6 text-center">
@@ -110,7 +117,7 @@ export default function GardenView({
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-moonglow">Tonight&apos;s quest</p>
           <div className="space-y-4">
             {["Choose one small intention", "Stay with it while the firefly glows", "Return with a little more light"].map((step, index) => (
-              <div key={step} className="flex items-start gap-3">
+              <div key={step} className="quest-card flex items-start gap-3 rounded-2xl border border-transparent p-2">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-firefly/30 bg-firefly/10 text-xs font-semibold text-firefly">0{index + 1}</span>
                 <p className="pt-1 text-sm text-parchment">{step}</p>
               </div>

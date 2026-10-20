@@ -113,6 +113,8 @@ export default function GardenPlot({
               r={6 + growth * 5}
               fill={i % 2 === 0 ? "url(#stemGlowPink)" : "url(#stemGlowBlue)"}
               opacity="0.95"
+              className="firefly"
+              style={{ animationDelay: `${i * 0.18}s` }}
             />
           </g>
         );

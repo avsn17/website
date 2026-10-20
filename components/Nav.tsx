@@ -37,7 +37,7 @@ export default function Nav({
           <h1 className="font-display text-2xl font-semibold text-parchment">
             Mystical Gardens
           </h1>
-          <p className="text-xs text-muted">guided by Moonlight the Butterfly</p>
+          <p className="text-xs text-muted">a quiet forest for focused minds</p>
         </div>
       </div>
 

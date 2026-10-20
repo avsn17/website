@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --background: #0f1020;
-  --foreground: #f8f3e7;
-  --midnight: #111326;
-  --plum: #292342;
-  --indigo-deep: #40366d;
-  --indigo-glow: #8376dc;
-  --moonglow: #f3d58a;
-  --parchment: #f8f3e7;
-  --muted: #b9b4c9;
-  --firefly: #ffd166;
+  --background: #071a16;
+  --foreground: #f3f4df;
+  --midnight: #081c19;
+  --plum: #12372d;
+  --indigo-deep: #1f5946;
+  --indigo-glow: #4fa878;
+  --moonglow: #e8d58b;
+  --parchment: #f3f4df;
+  --muted: #a8bca8;
+  --firefly: #f6dc83;
 }
 
 * { box-sizing: border-box; }
@@ -42,12 +42,16 @@ button { cursor: pointer; }
   .bg-indigo-deep { background-color: var(--indigo-deep); }
   .bg-indigo-glow { background-color: var(--indigo-glow); }
   .bg-moonglow { background-color: var(--moonglow); }
-  .bg-twilight { background: radial-gradient(circle at 75% 8%, #3d356b 0, transparent 34%), linear-gradient(145deg, #17152d 0%, #0f1020 58%, #18283a 100%); }
-  .glass-panel { border: 1px solid rgba(174, 159, 238, .18); background: rgba(25, 22, 48, .72); box-shadow: 0 18px 55px rgba(4, 4, 15, .24); backdrop-filter: blur(18px); }
-  .shadow-glow { box-shadow: 0 0 26px rgba(131, 118, 220, .3); }
-  .shadow-fireflyGlow { box-shadow: 0 0 18px rgba(255, 209, 102, .18); }
+  .bg-twilight { background: radial-gradient(circle at 78% 5%, rgba(91, 151, 108, .26) 0, transparent 28%), radial-gradient(circle at 12% 90%, rgba(28, 94, 65, .28) 0, transparent 32%), linear-gradient(145deg, #0d3027 0%, #071a16 58%, #102b25 100%); }
+  .glass-panel { border: 1px solid rgba(151, 207, 157, .17); background: rgba(9, 39, 31, .76); box-shadow: 0 18px 55px rgba(1, 15, 11, .34); backdrop-filter: blur(18px); }
+  .shadow-glow { box-shadow: 0 0 30px rgba(92, 193, 126, .24); }
+  .shadow-fireflyGlow { box-shadow: 0 0 18px rgba(246, 220, 131, .22); }
   .firefly { animation: twinkle 2.8s ease-in-out infinite; }
+  .leaf-drift { animation: leafDrift 16s ease-in-out infinite; }
+  .garden-rise { animation: gardenRise .8s cubic-bezier(.2,.8,.2,1) both; }
 }
 
 @keyframes twinkle { 0%, 100% { opacity: .25; transform: scale(.85); } 50% { opacity: .95; transform: scale(1.15); } }
+@keyframes leafDrift { 0%, 100% { transform: translate3d(-2%, 0, 0) rotate(1deg); } 50% { transform: translate3d(2%, 10px, 0) rotate(-1deg); } }
+@keyframes gardenRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }

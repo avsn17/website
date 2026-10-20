@@ -61,13 +61,17 @@ export default function GardenView({
   const ss = String(elapsedSeconds % 60).padStart(2, "0");
 
   return (
-    <div className="flex flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="garden-rise flex flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 text-center">
         <div className="mx-auto flex items-center gap-2 rounded-full border border-firefly/20 bg-firefly/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-firefly">
           <span className="h-1.5 w-1.5 rounded-full bg-firefly shadow-fireflyGlow" /> Chapter one · The first light
         </div>
         <h2 className="font-display text-4xl font-semibold leading-tight text-parchment sm:text-5xl">A little light can change the whole night.</h2>
         <p className="mx-auto max-w-xl text-sm leading-6 text-muted">Your focus is the spark. Every calm minute helps the Firefly find its way home.</p>
+        <div className="mx-auto mt-2 flex flex-wrap justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-glow">
+          <span className="rounded-full border border-indigo-glow/20 bg-indigo-glow/10 px-3 py-1">Forest level {Math.max(1, Math.floor(totalFocusedMinutes / 60) + 1)}</span>
+          <span className="rounded-full border border-moonglow/20 bg-moonglow/10 px-3 py-1 text-moonglow">{Math.round(totalFocusedMinutes)} moon minutes</span>
+        </div>
       </div>
       <div className="mx-auto grid w-full max-w-4xl gap-6 lg:grid-cols-[1.08fr_.92fr] lg:items-center">
         <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/20 shadow-2xl">
@@ -112,7 +116,11 @@ export default function GardenView({
               </div>
             ))}
           </div>
-          <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-5 text-muted">No profiles, public scores, or tracking are needed to grow here. Your garden stays yours.</p>
+          <div className="mt-5 rounded-2xl border border-indigo-glow/15 bg-indigo-glow/5 p-3 text-xs text-muted">
+            <div className="mb-2 flex items-center justify-between"><span>Tonight&apos;s bloom</span><span className="text-moonglow">{Math.min(100, Math.round((totalFocusedMinutes % 60) / 60 * 100))}%</span></div>
+            <div className="h-2 overflow-hidden rounded-full bg-midnight"><div className="h-full rounded-full bg-gradient-to-r from-indigo-glow to-moonglow transition-all" style={{ width: `${Math.min(100, Math.round((totalFocusedMinutes % 60) / 60 * 100))}%` }} /></div>
+          </div>
+          <p className="mt-4 border-t border-white/10 pt-4 text-xs leading-5 text-muted">No profiles, public scores, or tracking are needed to grow here. Your garden stays yours.</p>
         </div>
       </div>
       <div className="flex flex-col items-center gap-4">

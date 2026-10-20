@@ -33,9 +33,13 @@ export default function GardenView({
       }, 1000);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [running]);
 
@@ -71,14 +75,15 @@ export default function GardenView({
         <h2 className="font-display text-4xl font-semibold leading-tight text-parchment sm:text-5xl">A little light can change the whole night.</h2>
         <p className="mx-auto max-w-xl text-sm leading-6 text-muted">Your focus is the spark. Every calm minute helps the Firefly find its way home.</p>
         <div className="mx-auto mt-2 flex flex-wrap justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-indigo-glow">
-          <span className="rounded-full border border-indigo-glow/20 bg-indigo-glow/10 px-3 py-1">Forest level {Math.max(1, Math.floor(totalFocusedMinutes / 60) + 1)}</span>
+          <span className="rounded-full border border-indigo-glow/20 bg-indigo-glow/10 px-3 py-1">Grove level {Math.max(1, Math.floor(totalFocusedMinutes / 60) + 1)}</span>
           <span className="rounded-full border border-moonglow/20 bg-moonglow/10 px-3 py-1 text-moonglow">{Math.round(totalFocusedMinutes)} moon minutes</span>
+          <span className="rounded-full border border-firefly/20 bg-firefly/10 px-3 py-1 text-firefly">{Math.max(0, Math.floor(totalFocusedMinutes / 15))} firefly sparks</span>
         </div>
       </div>
       <div className="mx-auto grid w-full max-w-4xl gap-6 lg:grid-cols-[1.08fr_.92fr] lg:items-center">
         <div className="order-first flex items-center justify-center gap-3 rounded-3xl border border-firefly/15 bg-plum/40 px-4 py-2 lg:col-span-2 lg:justify-start">
           <Gnome size={68} />
-          <div className="text-left"><p className="font-display text-lg text-parchment">Welcome, keeper.</p><p className="text-xs text-muted">I&apos;ve unlocked the path. Moonlight will guide your first bloom.</p></div>
+          <div className="text-left"><p className="font-display text-lg text-parchment">Welcome, keeper of the grove.</p><p className="text-xs text-muted">The old paths are open. Moonlight will walk beside you, and I&apos;ll keep the keys safe.</p></div>
           <div className="ml-auto hidden sm:block"><Moonlight size={58} /></div>
         </div>
         <div className="overflow-hidden rounded-3xl border border-white/10 bg-black/20 shadow-2xl">
@@ -114,14 +119,18 @@ export default function GardenView({
           </div>
         </div>
         <div className="glass-panel rounded-3xl p-5 sm:p-6">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-moonglow">Tonight&apos;s quest</p>
-          <div className="space-y-4">
-            {["Choose one small intention", "Stay with it while the firefly glows", "Return with a little more light"].map((step, index) => (
-              <div key={step} className="quest-card flex items-start gap-3 rounded-2xl border border-transparent p-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-firefly/30 bg-firefly/10 text-xs font-semibold text-firefly">0{index + 1}</span>
-                <p className="pt-1 text-sm text-parchment">{step}</p>
-              </div>
-            ))}
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-moonglow">Tonight&apos;s quest</p>
+          <p className="mb-4 text-xs text-muted">A small rite of the moonlit grove</p>
+          <div className="space-y-3">
+            {["Choose one small intention", "Stay with it while Moonlight glows", "Return with a little more light"].map((step, index) => {
+              const complete = index === 0 || (index === 1 && running) || (index === 2 && totalFocusedMinutes > 0);
+              return (
+                <div key={step} className={`quest-card flex items-start gap-3 rounded-2xl border p-2 ${complete ? "border-firefly/25 bg-firefly/5" : "border-transparent"}`}>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${complete ? "border-firefly/50 bg-firefly/15 text-firefly" : "border-indigo-glow/30 bg-indigo-glow/10 text-indigo-glow"}`}>{complete ? "✓" : `0${index + 1}`}</span>
+                  <p className={`pt-1 text-sm ${complete ? "text-parchment" : "text-muted"}`}>{step}</p>
+                </div>
+              );
+            })}
           </div>
           <div className="mt-5 rounded-2xl border border-indigo-glow/15 bg-indigo-glow/5 p-3 text-xs text-muted">
             <div className="mb-2 flex items-center justify-between"><span>Tonight&apos;s bloom</span><span className="text-moonglow">{Math.min(100, Math.round((totalFocusedMinutes % 60) / 60 * 100))}%</span></div>

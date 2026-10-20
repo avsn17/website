@@ -25,9 +25,12 @@ export async function POST(request: Request) {
     },
   });
 
-  const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${rawToken}`;
+  const origin = process.env.NEXTAUTH_URL || new URL(request.url).origin;
+  const resetUrl = `${origin}/reset-password?token=${encodeURIComponent(rawToken)}`;
+  let emailSent = false;
+
   if (process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL) {
-    await fetch("https://api.resend.com/emails", {
+    const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -40,9 +43,15 @@ export async function POST(request: Request) {
         text: `Reset your password within one hour: ${resetUrl}`,
       }),
     });
-  } else if (process.env.NODE_ENV !== "production") {
+    emailSent = emailResponse.ok;
+  }
+
+  if (!emailSent && process.env.NODE_ENV !== "production") {
     console.info(`Password reset URL for ${user.email}: ${resetUrl}`);
   }
 
-  return NextResponse.json(genericResponse);
+  return NextResponse.json({
+    ...genericResponse,
+    ...(process.env.NODE_ENV !== "production" ? { resetUrl } : {}),
+  });
 }

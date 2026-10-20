@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
 function ResetPasswordForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [email, setEmail] = useState("");
@@ -19,19 +20,30 @@ function ResetPasswordForm() {
     setMessage("");
     setError("");
 
-    const response = await fetch(
-      token ? "/api/auth/reset-password" : "/api/auth/request-password-reset",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(token ? { token, password } : { email }),
-      }
-    );
-    const data = await response.json().catch(() => ({}));
+    try {
+      const response = await fetch(
+        token ? "/api/auth/reset-password" : "/api/auth/request-password-reset",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(token ? { token, password } : { email }),
+        }
+      );
+      const data = await response.json().catch(() => ({}));
 
-    if (!response.ok) setError(data.error || "Something went wrong.");
-    else setMessage(data.message);
-    setLoading(false);
+      if (!response.ok) {
+        setError(data.error || "Something went wrong.");
+      } else if (data.resetUrl) {
+        setMessage("Reset link created for this preview. Open it below to choose a new password.");
+        router.replace(data.resetUrl);
+      } else {
+        setMessage(data.message || "Check your email for the reset link.");
+      }
+    } catch {
+      setError("We could not reach the garden gate. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

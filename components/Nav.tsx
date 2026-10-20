@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import Moonlight from "./Moonlight";
+import Gnome from "./Gnome";
 
 export type Tab = "garden" | "shop" | "history" | "friends" | "groups" | "feedback" | "admin";
 
@@ -32,12 +33,15 @@ export default function Nav({
   return (
     <header className="glass-panel sticky top-0 z-10 flex flex-col gap-4 border-x-0 border-t-0 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
-        <Moonlight size={44} />
+        <div className="relative flex h-12 w-[5.25rem] items-center">
+          <Gnome size={54} />
+          <div className="absolute left-8 top-0"><Moonlight size={34} /></div>
+        </div>
         <div>
           <h1 className="font-display text-2xl font-semibold text-parchment">
             Mystical Gardens
           </h1>
-          <p className="text-xs text-muted">a quiet forest for focused minds</p>
+          <p className="text-xs text-muted">Gnome keeps the keys. Moonlight keeps you company.</p>
         </div>
       </div>
 
